@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bass Pro Alerts — Overlay</title>
+    <style>
+      :root {
+        --accent: #b8c4cc;
+        --ink: #05141c;
+        --card-w: 400px;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 100%; height: 100%; overflow: hidden; background: transparent; }
+      body {
+        font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ---- the card, docked to the right edge ---- */
+      #card {
+        position: fixed; top: 50%; right: 24px;
+        width: var(--card-w); height: min(960px, 94vh);
+        transform: translate(calc(var(--card-w) + 48px), -50%);
+        transition: transform 620ms cubic-bezier(0.16, 1, 0.3, 1);
+        will-change: transform;
+      }
+      #card.show { transform: translate(0, -50%); }
+      #card.left {
+        right: auto; left: 24px;
+        transform: translate(calc(-1 * (var(--card-w) + 48px)), -50%);
+      }
+      #card.left.show { transform: translate(0, -50%); }
+
+      #card-frame {
+        position: absolute; inset: 0;
+        display: flex; flex-direction: column;
+        background: linear-gradient(180deg, #0c1a24 0%, #081119 100%);
+        border: 2px solid color-mix(in srgb, var(--accent) 55%, #24333d);
+        border-radius: 12px;
+        box-shadow:
+          0 0 0 2px #050c12,
+          0 0 34px color-mix(in srgb, var(--accent) 42%, transparent),
+          0 22px 60px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+      }
+
+      /* ---- hero: WHO paid, and WHAT they gave ---- */
+      #hero {
+        padding: 16px 16px 14px; text-align: center;
+        background:
+          radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+          linear-gradient(180deg, #0e1c26, #0b1620);
+        border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, #1b2a33);
+      }
+      #hero-name {
+        font-family: "Consolas", "SF Mono", ui-monospace, monospace;
+        font-weight: 800; font-size: 30px; letter-spacing: 0.06em;
+        color: #fff; line-height: 1.1; white-space: nowrap; overflow: hidden;
+        text-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent), 0 2px 0 #04121a;
+      }
+      #hero-name.hit { animation: pop 460ms cubic-bezier(0.2, 1.4, 0.4, 1); }
+      @keyframes pop {
+        0% { transform: scale(1.22); filter: brightness(2.2); }
+        60% { transform: scale(0.97); }
+        100% { transform: scale(1); filter: brightness(1); }
+      }
+      #hero-sub {
+        margin-top: 7px; display: inline-flex; align-items: center; gap: 8px;
+        font-size: 17px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase;
+        padding: 4px 12px; border-radius: 999px;
+        background: rgba(0, 0, 0, 0.32);
+      }
+      #hero-sub.hit { animation: subflash 500ms ease; }
+      @keyframes subflash { 0%, 100% { background: rgba(0,0,0,0.32); } 40% { background: color-mix(in srgb, var(--accent) 55%, transparent); } }
+      #hero-sub svg { width: 18px; height: 18px; }
+      #hero-sub.money { color: #6ee7a0; } #hero-sub.money svg { color: #6ee7a0; }
+      #hero-sub.bits  { color: #c79bff; } #hero-sub.bits svg  { color: #c79bff; }
+      #hero-sub.sub   { color: #b9d4ff; } #hero-sub.sub svg   { color: #b9d4ff; }
+
+      /* ---- the 3D window ---- */
+      #fishview {
+        position: relative; flex: 1 1 auto; min-height: 0;
+        background: linear-gradient(180deg,
+          #3a3c78 0%,
+          #6f4c86 18%,
+          #b25f80 34%,
+          #e5835a 49%,
+          #ffc178 58%,
+          #ffdd96 62%,
+          #7c93bf 63.5%,
+          #3f74b0 65%,
+          #2b5c9a 78%,
+          #1c4272 92%,
+          #142f52 100%);
+      }
+      #fishview canvas { position: absolute; inset: 0; width: 100% !important; height: 100% !important; }
+
+      /* ---- prize: the fish you landed ---- */
+      #prize { padding: 14px 18px 18px; text-align: center; border-top: 1px solid #06303a; }
+      #prize-species {
+        font-size: 23px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase;
+        color: #f3f7f5; text-shadow: 0 2px 0 #05141c;
+      }
+      #prize-line {
+        margin-top: 8px; display: flex; align-items: center; justify-content: center; gap: 12px;
+      }
+      #prize-size { font-size: 17px; font-weight: 700; color: #cdd9d5; letter-spacing: 0.03em; }
+      #prize-rarity {
+        font-size: 13px; font-weight: 800; letter-spacing: 0.12em;
+        padding: 3px 10px; border-radius: 4px; color: var(--ink);
+        background: var(--accent);
+      }
+
+      /* ---- rarity accents ---- */
+      #card.r-common    { --accent: #b8c4cc; }
+      #card.r-uncommon  { --accent: #5bd66b; }
+      #card.r-rare      { --accent: #4aa3e0; }
+      #card.r-epic      { --accent: #c74ae0; }
+      #card.r-legendary { --accent: #ffb52e; }
+      #card.r-mythic    { --accent: #ff5555; }
+      #card.r-junk      { --accent: #8a8f94; }
+      #card.r-legendary #card-frame, #card.r-mythic #card-frame { animation: pulse 1.8s ease-in-out infinite; }
+      @keyframes pulse {
+        50% { box-shadow: 0 0 0 2px #050c12, 0 0 54px color-mix(in srgb, var(--accent) 75%, transparent), 0 22px 60px rgba(0,0,0,0.55); }
+      }
+
+      #offline {
+        position: fixed; left: 10px; bottom: 8px; font-size: 11px;
+        color: #ff6b6b; font-family: monospace; opacity: 0.8;
+      }
+      #offline.hidden { display: none; }
+
+      /* ---- gallery / review bar (never on the stream overlay) ---- */
+      #gallery-bar[hidden] { display: none; }
+      #gallery-bar {
+        position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+        display: flex; align-items: center; gap: 12px;
+        padding: 10px 16px; border-radius: 999px;
+        background: rgba(10, 16, 22, 0.92); border: 1px solid #223039;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        font-family: "Trebuchet MS", system-ui, sans-serif; color: #dfe8ea; z-index: 50;
+      }
+      #gallery-bar button {
+        width: 34px; height: 34px; border-radius: 8px; cursor: pointer;
+        background: #1a252d; color: #dfe8ea; border: 1px solid #2c3a44; font-size: 14px; line-height: 1;
+      }
+      #gallery-bar button:hover { background: #24323c; }
+      #g-idx { font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13px; color: #8fa3ac; min-width: 62px; text-align: center; }
+      #g-name { font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; font-size: 14px; min-width: 190px; }
+      #g-hint { font-size: 11px; color: #6f828b; }
+    </style>
+  </head>
+  <body>
+    <div id="card" class="r-common">
+      <div id="card-frame">
+        <div id="hero">
+          <div id="hero-name">—</div>
+          <div id="hero-sub"><span id="hero-icon"></span><span id="hero-amount">—</span></div>
+        </div>
+        <div id="fishview"><canvas id="stage"></canvas></div>
+        <div id="prize">
+          <div id="prize-species">—</div>
+          <div id="prize-line">
+            <span id="prize-size">—</span>
+            <span id="prize-rarity">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="offline">overlay: no connection to server</div>
+
+    <div id="gallery-bar" hidden>
+      <button id="g-prev" title="Previous (←)">◀</button>
+      <button id="g-play" title="Play / pause (space)">❚❚</button>
+      <button id="g-next" title="Next (→)">▶</button>
+      <span id="g-idx">1 / 1</span>
+      <span id="g-name">—</span>
+      <span id="g-hint">← → to step · space to pause</span>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "wsPort": 7333,
+  "bitsPerDollar": 100,
+  "subValues": { "1000": 5, "2000": 10, "3000": 25 },
+  "bleedChance": 0.08,
+  "junkChance": 0.06,
+  "junk": [
+    "old-boot",
+    "rusty-can",
+    "car-tire",
+    "shopping-cart",
+    "soggy-newspaper",
+    "lost-phone",
+    "message-bottle",
+    "treasure-chest"
+  ],
+  "defaultSceneMs": 9000,
+  "twitch": { "redirectPort": 7334 },
+  "notes": "subValues keys are Twitch sub tiers (1000/2000/3000). Streamlabs tips are treated as USD; non-USD is logged but not converted."
+}

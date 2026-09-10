@@ -1,0 +1,331 @@
+[
+  {
+    "n": 1,
+    "min": 0,
+    "max": 10,
+    "sceneMs": 8000,
+    "pool": [
+      {
+        "id": "bluegill",
+        "weight": 10
+      },
+      {
+        "id": "pumpkinseed",
+        "weight": 9
+      },
+      {
+        "id": "green-sunfish",
+        "weight": 8
+      },
+      {
+        "id": "redear-sunfish",
+        "weight": 6
+      },
+      {
+        "id": "rock-bass",
+        "weight": 7
+      },
+      {
+        "id": "warmouth",
+        "weight": 5
+      },
+      {
+        "id": "yellow-perch",
+        "weight": 9
+      },
+      {
+        "id": "white-perch",
+        "weight": 6
+      },
+      {
+        "id": "black-crappie",
+        "weight": 7
+      },
+      {
+        "id": "white-crappie",
+        "weight": 6
+      },
+      {
+        "id": "largemouth-bass-small",
+        "weight": 8
+      },
+      {
+        "id": "smallmouth-bass-small",
+        "weight": 7
+      },
+      {
+        "id": "spotted-bass",
+        "weight": 5
+      },
+      {
+        "id": "brook-trout",
+        "weight": 5
+      },
+      {
+        "id": "rainbow-trout-small",
+        "weight": 5
+      },
+      {
+        "id": "brown-trout-small",
+        "weight": 4
+      },
+      {
+        "id": "creek-chub",
+        "weight": 6
+      },
+      {
+        "id": "fallfish",
+        "weight": 4
+      },
+      {
+        "id": "golden-shiner",
+        "weight": 5
+      },
+      {
+        "id": "common-shiner",
+        "weight": 5
+      },
+      {
+        "id": "white-sucker",
+        "weight": 4
+      },
+      {
+        "id": "brown-bullhead",
+        "weight": 5
+      },
+      {
+        "id": "yellow-bullhead",
+        "weight": 4
+      },
+      {
+        "id": "channel-catfish-small",
+        "weight": 4
+      },
+      {
+        "id": "bowfin-small",
+        "weight": 3
+      },
+      {
+        "id": "chain-pickerel-small",
+        "weight": 3
+      },
+      {
+        "id": "sauger",
+        "weight": 3
+      },
+      {
+        "id": "freshwater-drum-small",
+        "weight": 3
+      },
+      {
+        "id": "common-carp-small",
+        "weight": 4
+      },
+      {
+        "id": "goldfish",
+        "weight": 2
+      },
+      {
+        "id": "mudpuppy",
+        "weight": 1
+      },
+      {
+        "id": "sunfish-hybrid",
+        "weight": 3
+      },
+      {
+        "id": "shrimp",
+        "weight": 5
+      },
+      {
+        "id": "crayfish",
+        "weight": 5
+      },
+      {
+        "id": "blue-crab",
+        "weight": 4
+      }
+    ],
+    "rarityFloor": "COMMON"
+  },
+  {
+    "n": 2,
+    "min": 10,
+    "max": 25,
+    "sceneMs": 9000,
+    "pool": [
+      {
+        "id": "largemouth-bass",
+        "weight": 10
+      },
+      {
+        "id": "smallmouth-bass",
+        "weight": 9
+      },
+      {
+        "id": "walleye",
+        "weight": 8
+      },
+      {
+        "id": "northern-pike",
+        "weight": 6
+      },
+      {
+        "id": "chain-pickerel",
+        "weight": 6
+      },
+      {
+        "id": "channel-catfish",
+        "weight": 7
+      },
+      {
+        "id": "flathead-catfish-small",
+        "weight": 4
+      },
+      {
+        "id": "coho-salmon",
+        "weight": 5
+      },
+      {
+        "id": "brown-trout",
+        "weight": 6
+      },
+      {
+        "id": "lake-trout-small",
+        "weight": 4
+      },
+      {
+        "id": "common-carp",
+        "weight": 5
+      },
+      {
+        "id": "freshwater-drum",
+        "weight": 4
+      },
+      {
+        "id": "striped-bass-small",
+        "weight": 5
+      }
+    ],
+    "rarityFloor": "UNCOMMON"
+  },
+  {
+    "n": 3,
+    "min": 25,
+    "max": 50,
+    "sceneMs": 10000,
+    "pool": [
+      {
+        "id": "trophy-largemouth",
+        "weight": 9
+      },
+      {
+        "id": "muskellunge",
+        "weight": 7
+      },
+      {
+        "id": "flathead-catfish",
+        "weight": 7
+      },
+      {
+        "id": "blue-catfish",
+        "weight": 6
+      },
+      {
+        "id": "lake-sturgeon-small",
+        "weight": 5
+      },
+      {
+        "id": "king-salmon",
+        "weight": 6
+      },
+      {
+        "id": "striped-bass",
+        "weight": 6
+      },
+      {
+        "id": "longnose-gar",
+        "weight": 4
+      },
+      {
+        "id": "king-crab",
+        "weight": 5
+      }
+    ],
+    "rarityFloor": "RARE"
+  },
+  {
+    "n": 4,
+    "min": 50,
+    "max": 100,
+    "sceneMs": 12000,
+    "pool": [
+      {
+        "id": "monster-blue-catfish",
+        "weight": 8
+      },
+      {
+        "id": "giant-muskie",
+        "weight": 7
+      },
+      {
+        "id": "white-sturgeon",
+        "weight": 6
+      },
+      {
+        "id": "alligator-gar",
+        "weight": 6
+      },
+      {
+        "id": "golden-largemouth",
+        "weight": 3
+      },
+      {
+        "id": "brindle-bruiser-tuna",
+        "weight": 2
+      },
+      {
+        "id": "colossal-squid",
+        "weight": 3
+      },
+      {
+        "id": "bog-serpent",
+        "weight": 2
+      }
+    ],
+    "rarityFloor": "EPIC"
+  },
+  {
+    "n": 5,
+    "min": 100,
+    "max": null,
+    "sceneMs": 15000,
+    "pool": [
+      {
+        "id": "old-ironjaw",
+        "weight": 8
+      },
+      {
+        "id": "lake-titan-catfish",
+        "weight": 6
+      },
+      {
+        "id": "coelacanth",
+        "weight": 5
+      },
+      {
+        "id": "neon-mutant-muskie",
+        "weight": 5
+      },
+      {
+        "id": "the-reservoir-kraken",
+        "weight": 3
+      },
+      {
+        "id": "abyssal-angler",
+        "weight": 4
+      }
+    ],
+    "rarityFloor": "LEGENDARY"
+  }
+]

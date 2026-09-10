@@ -1,0 +1,8 @@
+node_modules/
+overlay/node_modules/
+overlay/dist/
+.env
+server/.tokens.json
+server/credentials.json
+*.log
+.DS_Store

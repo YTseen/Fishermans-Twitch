@@ -1,0 +1,19 @@
+{
+  "name": "bass-pro-alerts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Twitch/Streamlabs support events rendered as a PS1-style Bass Pro fishing catch, for an OBS browser source.",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "start": "node server/index.js",
+    "sim": "node server/sim.js",
+    "overlay": "npm --prefix overlay run dev",
+    "postinstall": "npm --prefix overlay install"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "socket.io-client": "^4.8.1",
+    "ws": "^8.18.0"
+  }
+}

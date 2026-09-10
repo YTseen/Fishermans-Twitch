@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bass Pro Alerts — Setup</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      body {
+        font-family: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+        background: #0b1319; color: #e6eef0; padding: 40px 20px; line-height: 1.5;
+      }
+      .wrap { max-width: 560px; margin: 0 auto; }
+      h1 { font-size: 22px; letter-spacing: 0.04em; }
+      .lead { color: #8ea0a8; font-size: 14px; margin: 6px 0 28px; }
+      .card {
+        background: #111e26; border: 1px solid #1e2f39; border-radius: 12px;
+        padding: 22px; margin-bottom: 22px;
+      }
+      .card h2 { font-size: 16px; letter-spacing: 0.06em; text-transform: uppercase; }
+      .pill {
+        display: inline-flex; align-items: center; gap: 7px; float: right;
+        font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+        padding: 3px 10px; border-radius: 999px; background: #1c2b34; color: #9fb2ba;
+      }
+      .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+      .pill.ok { color: #58d68d; } .pill.warn { color: #f5c451; } .pill.err { color: #f57171; }
+      label { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8ea0a8; margin: 16px 0 5px; }
+      input {
+        width: 100%; padding: 10px 12px; border-radius: 8px;
+        background: #0c161c; border: 1px solid #263742; color: #e6eef0; font-size: 14px; font-family: inherit;
+      }
+      input:focus { outline: none; border-color: #3f6b7d; }
+      .hint { font-size: 12px; color: #6f828b; margin-top: 5px; }
+      .hint code { background: #0c161c; padding: 1px 5px; border-radius: 4px; color: #a9c2cc; }
+      button {
+        margin-top: 18px; padding: 10px 18px; border-radius: 8px; cursor: pointer;
+        background: #2a6b3f; color: #eafff0; border: 1px solid #37804d; font-size: 14px; font-weight: 700;
+      }
+      button:hover { background: #327a49; }
+      button.link { background: #6441a5; border-color: #7a54c0; margin-left: 10px; }
+      button.link:hover { background: #7350ba; }
+      button[disabled] { opacity: 0.5; cursor: default; }
+      .saved { display: inline-block; margin-left: 12px; color: #58d68d; font-size: 13px; opacity: 0; transition: opacity 0.2s; }
+      .saved.show { opacity: 1; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Bass Pro Alerts — Setup</h1>
+      <p class="lead">Paste your keys once. They're saved to <code>server/credentials.json</code> (git-ignored) and reload straight away.</p>
+
+      <div class="card" id="twitch-card">
+        <span class="pill" id="tw-pill">checking…</span>
+        <h2>Twitch</h2>
+        <p class="hint">
+          Create an app at <a href="https://dev.twitch.tv/console/apps" target="_blank" style="color:#9ecbff">dev.twitch.tv/console/apps</a> —
+          category <b>Broadcasting Suite</b>, OAuth Redirect URL
+          <code id="redir">http://localhost:7333/twitch/callback</code>. Your channel must be at least Affiliate for bits &amp; subs.
+        </p>
+        <label>Client ID</label>
+        <input id="tw-id" autocomplete="off" spellcheck="false" />
+        <label>Client Secret</label>
+        <input id="tw-secret" type="password" autocomplete="off" />
+        <label>Channel name (lowercase)</label>
+        <input id="tw-channel" autocomplete="off" spellcheck="false" placeholder="yourchannel" />
+        <div>
+          <button onclick="save('twitch')">Save Twitch keys</button>
+          <button class="link" id="tw-auth" style="display:none" onclick="authorize()">Authorize with Twitch →</button>
+          <span class="saved" id="tw-saved">saved ✓</span>
+        </div>
+      </div>
+
+      <div class="card" id="sl-card">
+        <span class="pill" id="sl-pill">checking…</span>
+        <h2>Streamlabs</h2>
+        <p class="hint">
+          Streamlabs dashboard → <b>Account Settings → API Settings → API Tokens</b> → copy
+          <b>"Your Socket API Token"</b>.
+        </p>
+        <label>Socket API Token</label>
+        <input id="sl-token" type="password" autocomplete="off" />
+        <div>
+          <button onclick="save('streamlabs')">Save Streamlabs token</button>
+          <span class="saved" id="sl-saved">saved ✓</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      let authURL = '';
+
+      async function refresh() {
+        const s = await fetch('/api/status').then((r) => r.json()).catch(() => null);
+        if (!s) return;
+        $('redir').textContent = s.redirectUri;
+
+        // twitch
+        if (!$('tw-channel').matches(':focus')) $('tw-channel').value = s.creds.twitchChannel || '';
+        $('tw-id').placeholder = s.creds.twitchClientId ? '•••••••• (saved)' : '';
+        $('tw-secret').placeholder = s.creds.twitchClientSecret ? '•••••••• (saved)' : '';
+        authURL = s.twitch.authUrl || '';
+        pill('tw-pill', s.twitch.state, {
+          off: ['warn', 'Not configured'],
+          idle: ['warn', 'Keys saved — not connected'],
+          'need-auth': ['warn', 'Needs authorization'],
+          connecting: ['warn', 'Connecting…'],
+          connected: ['ok', 'Connected as ' + (s.twitch.channel || '?')],
+          error: ['err', s.twitch.detail || 'Error'],
+        });
+        $('tw-auth').style.display = s.twitch.state === 'need-auth' || s.twitch.state === 'error' ? '' : 'none';
+
+        // streamlabs
+        $('sl-token').placeholder = s.creds.streamlabsToken ? '•••••••• (saved)' : '';
+        pill('sl-pill', s.streamlabs.state, {
+          off: ['warn', 'Not configured'],
+          connecting: ['warn', 'Connecting…'],
+          connected: ['ok', 'Connected'],
+          error: ['err', s.streamlabs.detail || 'Error'],
+        });
+      }
+
+      function pill(id, state, map) {
+        const [cls, text] = map[state] || ['warn', state];
+        const el = $(id);
+        el.className = 'pill ' + cls;
+        el.textContent = text;
+      }
+
+      async function save(which) {
+        const body = {};
+        if (which === 'twitch') {
+          if ($('tw-id').value.trim()) body.twitchClientId = $('tw-id').value.trim();
+          if ($('tw-secret').value.trim()) body.twitchClientSecret = $('tw-secret').value.trim();
+          body.twitchChannel = $('tw-channel').value.trim();
+        } else {
+          if ($('sl-token').value.trim()) body.streamlabsToken = $('sl-token').value.trim();
+        }
+        await fetch('/api/credentials', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        $('tw-id').value = $('tw-secret').value = $('sl-token').value = '';
+        const tag = $(which === 'twitch' ? 'tw-saved' : 'sl-saved');
+        tag.classList.add('show');
+        setTimeout(() => tag.classList.remove('show'), 1600);
+        refresh();
+      }
+
+      function authorize() {
+        if (authURL) window.open(authURL, '_blank');
+      }
+
+      refresh();
+      setInterval(refresh, 2000);
+    </script>
+  </body>
+</html>
