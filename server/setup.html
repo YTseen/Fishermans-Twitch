@@ -56,7 +56,14 @@
         <p class="hint">
           Create an app at <a href="https://dev.twitch.tv/console/apps" target="_blank" style="color:#9ecbff">dev.twitch.tv/console/apps</a> —
           category <b>Broadcasting Suite</b>, OAuth Redirect URL
-          <code id="redir">http://localhost:7333/twitch/callback</code>. Your channel must be at least Affiliate for bits &amp; subs.
+          <code id="redir">https://localhost:7334/twitch/callback</code>. Your channel must be at least Affiliate for bits &amp; subs.
+        </p>
+        <p class="hint">
+          That redirect URL is HTTPS on a self-signed local certificate (Twitch
+          requires HTTPS even for localhost). The first time it's hit — right
+          after you click Authorize below — your browser will say the
+          connection isn't private. That's expected: click <b>Advanced → Proceed
+          to localhost</b>. It only happens once.
         </p>
         <label>Client ID</label>
         <input id="tw-id" autocomplete="off" spellcheck="false" />

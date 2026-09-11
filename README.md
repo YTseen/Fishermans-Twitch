@@ -77,11 +77,29 @@ status pill. (`.env` still works and overrides the file if you prefer.)
 ### Twitch (bits, subs, gift subs) — needs Twitch Affiliate
 
 1. Create an app at <https://dev.twitch.tv/console/apps> — category
-   **Broadcasting Suite**, OAuth Redirect URL `http://localhost:7333/twitch/callback`.
+   **Broadcasting Suite**, OAuth Redirect URL `https://localhost:7334/twitch/callback`.
+   Twitch requires HTTPS for this redirect even on localhost, which is why the
+   port and protocol differ from the hub — see **HTTPS for the OAuth callback**
+   below.
 2. Paste the **Client ID**, **Client Secret**, and your **channel name** into the
    setup page, save.
-3. Click **Authorize with Twitch** → approve. The refresh token is cached in
+3. Click **Authorize with Twitch** → approve. Your browser will warn that the
+   connection isn't private — that's the self-signed cert; click **Advanced →
+   Proceed to localhost**, once. The refresh token is then cached in
    `server/.tokens.json` and refreshed automatically after that.
+
+#### HTTPS for the OAuth callback
+
+Everything else in this app (the overlay OBS loads, the WebSocket feed, the
+setup page) runs on plain HTTP — nothing about the live overlay needs a
+certificate. Only the Twitch redirect does, because Twitch's console rejects
+`http://` redirect URLs, including on localhost. So `npm start` also spins up
+a tiny second server, HTTPS-only, that handles just `/twitch/callback` on port
+`7334` (`server/twitch.redirectPort` in `config.json`). It self-signs a
+certificate the first time (`server/tls.js`, needs `openssl` on PATH — Git for
+Windows already ships one) and caches it in `server/certs/` (git-ignored).
+Being self-signed, it's untrusted by design; the one-time browser warning
+during authorization is expected, not a bug.
 
 Subscribes to `channel.cheer`, `channel.subscribe`, `channel.subscription.gift`,
 `channel.subscription.message` over EventSub websockets (no public URL needed).

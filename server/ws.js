@@ -15,9 +15,12 @@ const here = dirname(fileURLToPath(import.meta.url));
  *   GET  /catalogue.json    -> full species list for the review gallery
  *   GET  /api/status        -> source connection state (no secrets)
  *   POST /api/credentials   -> save keys, reload sources
- *   GET  /twitch/callback   -> OAuth redirect target
  *
- * `hub` = { redirectUri, credsStatus(), sourceStatus(), saveCredentials(patch), twitchCallback(code) }
+ * The Twitch OAuth callback is a *separate* HTTPS server (see oauth-callback.js)
+ * since Twitch requires HTTPS for that redirect even on localhost; this hub
+ * stays plain HTTP so OBS's browser source is never affected by it.
+ *
+ * `hub` = { redirectUri, credsStatus(), sourceStatus(), saveCredentials(patch) }
  */
 export function startWs(port, config, hub) {
   const catalogue = buildCatalogue(config);
@@ -49,15 +52,6 @@ export function startWs(port, config, hub) {
       try { patch = JSON.parse(raw); } catch {}
       hub?.saveCredentials?.(patch);
       return send(200, 'application/json', JSON.stringify({ ok: true }));
-    }
-
-    if (path === '/twitch/callback') {
-      const code = new URL(req.url, hub?.redirectUri || 'http://localhost').searchParams.get('code');
-      const done = code ? await hub?.twitchCallback?.(code) : { ok: false, error: 'no code' };
-      return send(done?.ok ? 200 : 400, 'text/html',
-        done?.ok
-          ? '<body style="font-family:sans-serif;background:#0b1319;color:#e6eef0;padding:40px"><h2>Twitch connected.</h2><p>You can close this tab and return to setup.</p></body>'
-          : `<body style="font-family:sans-serif;background:#0b1319;color:#e6eef0;padding:40px"><h2>Authorization failed</h2><pre>${done?.error || ''}</pre></body>`);
     }
 
     send(404, 'text/plain', 'not found');

@@ -4,5 +4,6 @@ overlay/dist/
 .env
 server/.tokens.json
 server/credentials.json
+server/certs/
 *.log
 .DS_Store

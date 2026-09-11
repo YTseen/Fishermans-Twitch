@@ -10,11 +10,18 @@ import { rollCatch } from './engine/fish.js';
 import { startTwitch } from './sources/twitch.js';
 import { startStreamlabs } from './sources/streamlabs.js';
 import { loadCreds, saveCreds, credsStatus } from './credentials.js';
+import { ensureLocalhostCert } from './tls.js';
+import { startTwitchCallbackServer } from './oauth-callback.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const config = JSON.parse(readFileSync(join(here, 'config.json'), 'utf8'));
 const PORT = config.wsPort;
-const REDIRECT_URI = `http://localhost:${PORT}/twitch/callback`;
+// Twitch requires HTTPS for the OAuth redirect, even on localhost, so that one
+// route runs on its own tiny HTTPS server with a self-signed cert. Everything
+// else (the overlay + the WebSocket hub OBS/the browser talk to) stays on
+// plain HTTP — unaffected, so nothing about the live overlay changes.
+const CALLBACK_PORT = config.twitch?.redirectPort ?? 7334;
+const REDIRECT_URI = `https://localhost:${CALLBACK_PORT}/twitch/callback`;
 const TOKEN_FILE = join(here, '.tokens.json');
 
 // --- the pipeline: support -> normalize -> fish roll -> broadcast ------------
@@ -61,8 +68,14 @@ startWs(PORT, config, {
     saveCreds(patch);
     applySources();
   },
-  twitchCallback: (code) => twitch.handleCallback(code),
 });
+
+try {
+  startTwitchCallbackServer(CALLBACK_PORT, ensureLocalhostCert(), (code) => twitch.handleCallback(code));
+} catch (e) {
+  console.error('[twitch] callback server disabled:', e.message);
+  console.error('        Twitch authorization will not work until this is fixed.');
+}
 
 applySources();
 
